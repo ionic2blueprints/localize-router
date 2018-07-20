@@ -348,6 +348,11 @@ export abstract class LocalizeParser {
       return key;
     }
     let res = this.translate.getParsedResult(this._translationObject, this.prefix + key);
+    
+    // set res to undefined, it key includes a paramter(eg. /users/:userid)
+    if(res.includes(this.prefix + ':')) {
+      res = undefined;
+    }
     return res || key;
   }
 }
