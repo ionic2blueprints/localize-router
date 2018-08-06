@@ -80,7 +80,7 @@ export class LocalizeRouterService {
 
   reverseKeyLookup(url: string) { 
     // url is empty return undefined
-    if(!url) {
+    if(!url || url === '/') {
       return undefined;
     }
     url = this.stripParameters(url);
