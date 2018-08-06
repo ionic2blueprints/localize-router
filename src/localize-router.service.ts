@@ -78,6 +78,53 @@ export class LocalizeRouterService {
     }
   }
 
+  reverseKeyLookup(url: string) { 
+    // url is empty return undefined
+    if(!url) {
+      return undefined;
+    }
+    url = this.stripParameters(url);
+    let routes = this.parser.routes;
+    let routeIndex = 0;
+    let pathIndex = 0;
+    let key: any = undefined; 
+    let urlPaths = url.split('/').slice(1);
+    while(routes && pathIndex < urlPaths.length) {
+      let currentRoute = routes[routeIndex];
+      let fullURL = urlPaths.slice(pathIndex).join('/');
+      if(currentRoute.path === urlPaths[pathIndex] || currentRoute.path === fullURL) {
+        // Match of Key
+        if(currentRoute.data && currentRoute.data.localizeRouter) {
+          key = currentRoute.data.localizeRouter.path;
+          break;
+        }
+
+        // if route has children
+        if(currentRoute.children) {
+          routes = currentRoute.children;
+          routeIndex = 0;
+          pathIndex++;
+        }
+      } else if(currentRoute.path === '' && currentRoute.children) {
+        // if route has children
+          routes = currentRoute.children;
+          routeIndex = 0;
+      } else {
+        routeIndex++;
+        // if no route match
+        if(routeIndex === routes.length) {
+          key = undefined;
+          break;
+        }
+      }
+    }
+    return key;
+  }
+
+  private stripParameters(url: string): string {
+    return url.match(/([^?]+).*/)[1].replace(/\b\#\w+/g, '');
+  }
+
   /**
    * Traverses through the tree to assemble new translated url
    * @param snapshot
